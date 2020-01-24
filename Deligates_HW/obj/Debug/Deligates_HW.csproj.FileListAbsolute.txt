@@ -1,0 +1,7 @@
+C:\Users\Tigran_K\source\repos\Deligates_HW\Deligates_HW\bin\Debug\Deligates_HW.exe.config
+C:\Users\Tigran_K\source\repos\Deligates_HW\Deligates_HW\bin\Debug\Deligates_HW.exe
+C:\Users\Tigran_K\source\repos\Deligates_HW\Deligates_HW\bin\Debug\Deligates_HW.pdb
+C:\Users\Tigran_K\source\repos\Deligates_HW\Deligates_HW\obj\Debug\Deligates_HW.csprojAssemblyReference.cache
+C:\Users\Tigran_K\source\repos\Deligates_HW\Deligates_HW\obj\Debug\Deligates_HW.csproj.CoreCompileInputs.cache
+C:\Users\Tigran_K\source\repos\Deligates_HW\Deligates_HW\obj\Debug\Deligates_HW.exe
+C:\Users\Tigran_K\source\repos\Deligates_HW\Deligates_HW\obj\Debug\Deligates_HW.pdb
