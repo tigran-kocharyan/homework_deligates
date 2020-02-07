@@ -62,10 +62,6 @@ namespace Deligates_HW
                 {
                     throw new Exception("Выражение не является числом.");
                 }
-                else if(!operations.ContainsKey(operators[1]))
-                {
-                    throw new Exception("Вызванного оператора нет в доступных.");
-                }
                 return Math.Round(operations[operators[1]](firstOperand, secondOperand),3);
             }
             catch (Exception e)

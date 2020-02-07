@@ -92,9 +92,11 @@ namespace Deligates_HW
                     Console.WriteLine("Процесс проверки начался..." + Environment.NewLine);
                     for (int i = 0; i < expressions.Length; i++)
                     {
-                        double answer = double.Parse($"{answers[i]:F3}");
-                        double expression = double.Parse($"{expressions[i]:F3}");
-                        if (answer == expression)
+                        if (answers[i] == expressions[i])
+                        {
+                            File.AppendAllText(pathResults, "OK" + Environment.NewLine);
+                        }
+                        else if(answers[i]== "не число" && expressions[i]=="не число")
                         {
                             File.AppendAllText(pathResults, "OK" + Environment.NewLine);
                         }
@@ -146,25 +148,45 @@ namespace Deligates_HW
         /// <param name="message"></param>
         public static void ResultErrorHandler(string message)
         {
-            if (message == "Выражение не является числом.")
+            try
             {
-                errorMessages.Append("не число\n");
-                return;
+                if (message == "Выражение не является числом.")
+                {
+                    File.AppendAllText("../../../answers.txt", "не число" + Environment.NewLine);
+                    return;
+                }
+                else if (message == "Значение было недопустимо малым или недопустимо большим для Double.")
+                {
+                    File.AppendAllText("../../../answers.txt", "∞" + Environment.NewLine);
+                    return;
+                }
+                else if (message == "Данный ключ отсутствует в словаре.")
+                {
+                    File.AppendAllText("../../../answers.txt", "неверный оператор" + Environment.NewLine);
+                    return;
+                }
+                else if (message == "Делить на ноль нельзя!")
+                {
+                    File.AppendAllText("../../../answers.txt", "bruh" + Environment.NewLine);
+                    return;
+                }
             }
-            else if (message == "Значение было недопустимо малым или недопустимо большим для Double.")
+            // Необходимо ловить все исключения, связанные с файлами.
+            catch (FileNotFoundException)
             {
-                errorMessages.Append("∞\n");
-                return;
+                Console.WriteLine("Данного файла не существует.");
             }
-            else if (message == "Выражение не является числом.")
+            catch (IOException)
             {
-                errorMessages.Append("не число\n");
-                return;
+                Console.WriteLine("Ошибка работы с файлом.");
             }
-            else if (message == "Вызванного оператора нет в доступных.")
+            catch (UnauthorizedAccessException)
             {
-                errorMessages.Append("неверный оператор\n");
-                return;
+                Console.WriteLine("Ошибка доступа.");
+            }
+            catch (System.Security.SecurityException)
+            {
+                Console.WriteLine("Ошибка безопасности.");
             }
         }
 
@@ -184,7 +206,7 @@ namespace Deligates_HW
                     Console.WriteLine("Считывание из файла expression.txt для последующего подсчета..." + Environment.NewLine);
                     WriteAnswers("../../../expressions.txt", "../../../answers.txt");
                     Console.WriteLine("Начинается процесс проверки..." + Environment.NewLine);
-                    //CheckAnswers("../../../expressions_checker.txt", "../../../answers.txt", "../../../results.txt");
+                    CheckAnswers("../../../expressions_checker.txt", "../../../answers.txt", "../../../results.txt");
                 }
                 catch (Exception)
                 {
