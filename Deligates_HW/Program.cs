@@ -8,57 +8,18 @@ using System.IO;
 
 namespace Deligates_HW
 {
+    /// <summary>
+    /// Делегат типа void, принимающий на вход строку message.
+    /// </summary>
+    /// <param name="message"></param>
+    public delegate void ErrorNotificationType(string message);
+
     class Program
     {
         /// <summary>
-        /// Объявление делегата и словаря для использования в конструкторе.
+        /// Создаем StringBuilder для заполнения его ошибками.
         /// </summary>
-        /// <param name="a"></param>
-        /// <param name="b"></param>
-        /// <returns></returns>
-        public delegate double MathOperation(double a, double b);
-        public static Dictionary<string, MathOperation> operations;
-        /// <summary>
-        /// Статический конструктор необходим для того, чтобы не перезаполнять всю таблицу после того, 
-        /// как программа будет перезапущена через ENTER.
-        /// </summary>
-        static Program()
-        {
-            operations = new Dictionary<string, MathOperation>();
-
-            MathOperation plus = (x, y) => x + y;
-            MathOperation multiply = (x, y) => x * y;
-            MathOperation divide = (x, y) => x / y;
-            MathOperation substract = (x, y) => x - y;
-            MathOperation pow = (x, y) => Math.Pow(x, y);
-            operations.Add("+", plus);
-            operations.Add("*", multiply);
-            operations.Add("/", divide);
-            operations.Add("-", substract);
-            operations.Add("^", pow);
-        }
-
-        /// <summary>
-        /// Метод возвращает вещественное число - результат операции между двумя операндами и самой операцией.
-        /// </summary>
-        /// <param name="expr"></param>
-        /// <returns></returns>
-        static double Calculate(string expr)
-        {
-            string[] operators = expr.Split(' ');
-            try
-            {
-                double firstOperand = double.Parse(operators[0]);
-                double secondOperand = double.Parse(operators[2]);
-
-                return operations[operators[1]](firstOperand, secondOperand);
-            }
-            catch (Exception)
-            {
-                Console.WriteLine("Строка должна иметь вид \"{operand_1} {operation} {operand_2}\"");
-                return double.NaN;
-            }
-        }
+        public static StringBuilder errorMessages = new StringBuilder();
 
         /// <summary>
         /// Метод считывает операнды из pathRead и заполняет результат их операций в файл по пути pathWrite.
@@ -72,19 +33,19 @@ namespace Deligates_HW
                 Console.WriteLine("Создание файла answers.txt..." + Environment.NewLine);
                 File.WriteAllText(pathWrite, "");
                 string[] expressions = File.ReadAllLines(pathRead);
-                try
+                foreach (string expression in expressions)
                 {
-                    foreach (string expression in expressions)
+                    try
                     {
-                        double answer = Calculate(expression);
+                        double answer = Calculator.Calculate(expression);
                         File.AppendAllText(pathWrite, $"{answer:F3}" + Environment.NewLine);
                     }
-                    Console.WriteLine("Запись в файл answers.txt успешно завершена..." + Environment.NewLine);
+                    catch (Exception)
+                    {
+                        continue;
+                    }
                 }
-                catch (Exception)
-                {
-                    Console.WriteLine("Произошла ошибка в работе с файлом!");
-                }
+                Console.WriteLine("Запись в файл answers.txt успешно завершена..." + Environment.NewLine);
             }
             // Необходимо ловить все исключения, связанные с файлами.
             catch (FileNotFoundException)
@@ -116,7 +77,7 @@ namespace Deligates_HW
         {
             try
             {
-                Console.WriteLine("Создание файла results.txt..."+Environment.NewLine);
+                Console.WriteLine("Создание файла results.txt..." + Environment.NewLine);
                 File.WriteAllText(pathResults, "");
 
                 string[] expressions = File.ReadAllLines(pathExpression);
@@ -128,14 +89,14 @@ namespace Deligates_HW
                 // Try...Catch.
                 try
                 {
-                    Console.WriteLine("Процесс проверки начался..."+Environment.NewLine);
+                    Console.WriteLine("Процесс проверки начался..." + Environment.NewLine);
                     for (int i = 0; i < expressions.Length; i++)
                     {
                         double answer = double.Parse($"{answers[i]:F3}");
                         double expression = double.Parse($"{expressions[i]:F3}");
                         if (answer == expression)
                         {
-                            File.AppendAllText(pathResults,"OK"+Environment.NewLine);
+                            File.AppendAllText(pathResults, "OK" + Environment.NewLine);
                         }
                         else
                         {
@@ -143,8 +104,8 @@ namespace Deligates_HW
                             errors++;
                         }
                     }
-                    File.AppendAllText(pathResults, "Найдено ошибок: "+errors.ToString());
-                    Console.WriteLine("Файл results.txt успешно создан!"+Environment.NewLine);
+                    File.AppendAllText(pathResults, "Найдено ошибок: " + errors.ToString());
+                    Console.WriteLine("Файл results.txt успешно создан!" + Environment.NewLine);
                 }
                 catch (Exception)
                 {
@@ -171,6 +132,43 @@ namespace Deligates_HW
         }
 
         /// <summary>
+        /// Метод для вывода на консоль ошибок.
+        /// </summary>
+        /// <param name="message"></param>
+        public static void ConsoleErrorHandler(string message)
+        {
+            Console.WriteLine(message + " " + DateTime.Now);
+        }
+
+        /// <summary>
+        /// Заполнитель файла с ошибками.
+        /// </summary>
+        /// <param name="message"></param>
+        public static void ResultErrorHandler(string message)
+        {
+            if (message == "Выражение не является числом.")
+            {
+                errorMessages.Append("не число\n");
+                return;
+            }
+            else if (message == "Значение было недопустимо малым или недопустимо большим для Double.")
+            {
+                errorMessages.Append("∞\n");
+                return;
+            }
+            else if (message == "Выражение не является числом.")
+            {
+                errorMessages.Append("не число\n");
+                return;
+            }
+            else if (message == "Вызванного оператора нет в доступных.")
+            {
+                errorMessages.Append("неверный оператор\n");
+                return;
+            }
+        }
+
+        /// <summary>
         /// Декомпозированный метод Main для запуска, который отдельно выполняет все методы.
         /// </summary>
         /// <param name="args"></param>
@@ -180,10 +178,13 @@ namespace Deligates_HW
             {
                 try
                 {
+                    Calculator.ErrorNotification += ConsoleErrorHandler;
+                    Calculator.ErrorNotification += ResultErrorHandler;
+
                     Console.WriteLine("Считывание из файла expression.txt для последующего подсчета..." + Environment.NewLine);
                     WriteAnswers("../../../expressions.txt", "../../../answers.txt");
                     Console.WriteLine("Начинается процесс проверки..." + Environment.NewLine);
-                    CheckAnswers("../../../expressions_checker.txt", "../../../answers.txt", "../../../results.txt");
+                    //CheckAnswers("../../../expressions_checker.txt", "../../../answers.txt", "../../../results.txt");
                 }
                 catch (Exception)
                 {
